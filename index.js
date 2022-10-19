@@ -1,3 +1,4 @@
+const fs = require("fs");
 const puppeteer = require("puppeteer");
 (async () => {
   const browser = await puppeteer.launch({
@@ -13,12 +14,10 @@ const puppeteer = require("puppeteer");
     "div.s-main-slot.s-result-list.s-search-results.sg-row > .s-result-item"
   );
 
-  const productArray = [];
-  let title = "";
-  let cost = "";
-  let image = "";
-
   for (const product of productHandles) {
+    let title = "Null";
+    let cost = "Null";
+    let image = "Null";
     try {
       title = await page.evaluate(
         (el) => el.querySelector("h2 > a > span").textContent,
@@ -40,10 +39,17 @@ const puppeteer = require("puppeteer");
         product
       );
     } catch (error) {}
-
-    productArray.push({ title, image, cost });
+    if (title !== "Null") {
+      fs.appendFile(
+        "result.csv",
+        `${title}, ${image}, ${cost}\n`,
+        function (error) {
+          if (error) throw error;
+          console.log("Saved!");
+        }
+      );
+    }
   }
-  console.log(productArray);
 
-  // await browser.close();
+  await browser.close();
 })();
