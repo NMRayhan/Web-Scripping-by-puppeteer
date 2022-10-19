@@ -14,6 +14,8 @@ const puppeteer = require("puppeteer");
     "div.s-main-slot.s-result-list.s-search-results.sg-row > .s-result-item"
   );
 
+  const productArray = [];
+
   for (const product of productHandles) {
     let title = "Null";
     let cost = "Null";
@@ -40,16 +42,14 @@ const puppeteer = require("puppeteer");
       );
     } catch (error) {}
     if (title !== "Null") {
-      fs.appendFile(
-        "result.csv",
-        `${title}, ${image}, ${cost}\n`,
-        function (error) {
-          if (error) throw error;
-          console.log("Saved!");
-        }
-      );
+      productArray.push({ title, image, cost });
     }
   }
+  const formettedData = JSON.stringify(productArray);
+  fs.writeFile("result.json", formettedData, function (error) {
+    if (error) throw error;
+    console.log("Saved!");
+  });
 
   await browser.close();
 })();
